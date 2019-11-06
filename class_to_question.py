@@ -6,10 +6,13 @@ from DBConnection import DB
 import numpy as np
 import os
 from sklearn.datasets import dump_svmlight_file
+from sklearn.datasets import load_svmlight_files
+from scipy.sparse import csr_matrix
 
-if __name__ == '__main__':
-    #For each base(cook, stack, english)
-    for base_dir in filter(os.path.isdir, ['data/questionExtraction/' + s for s in os.listdir('data/questionExtraction')]):
+def best_view_to_class():
+    # For each base(cook, stack, english)
+    for base_dir in filter(os.path.isdir,
+                           ['data/questionExtraction/' + s for s in os.listdir('data/questionExtraction')]):
         base = base_dir.split("/")[2]
 
         # Get the answer id and the answer's best view (which is also question's best view)
@@ -26,15 +29,18 @@ if __name__ == '__main__':
             columns={'parentId': 'question_id'})
 
         print(base)
-        for f in range(0,5):
+        for f in range(0, 5):
             for t in ['test', 'train']:
-                print(base_dir + '/svm/class/class_fold_'+ str(f) +'_'+ t +'_all_.svm')
-                fold = pd.read_csv(base_dir +'/svm/fold_'+ str(f) +'_'+ t +'_all_.svm', header=None, sep=" ", engine = 'python')
-                fold = fold.loc[:, fold.columns != 0].applymap(lambda x: x.split(':')[1]).rename(columns = {89:'question_id'})
+                print(base_dir + '/svm/class/class_fold_' + str(f) + '_' + t + '_all_.svm')
+                fold = pd.read_csv(base_dir + '/svm/fold_' + str(f) + '_' + t + '_all_.svm', header=None, sep=" ",
+                                   engine='python')
+                fold = fold.loc[:, fold.columns != 0].applymap(lambda x: x.split(':')[1]).rename(
+                    columns={89: 'question_id'})
                 fold.question_id = fold.question_id.apply(int)
 
                 # Join fold with question to get the best view for each question
-                fold = fold.merge(question, left_on='question_id', right_on='question_id', how='inner').drop(columns = ['answer_id'])
+                fold = fold.merge(question, left_on='question_id', right_on='question_id', how='inner').drop(
+                    columns=['answer_id'])
 
                 label = fold.best_view_result
                 question_id = fold.question_id
@@ -43,9 +49,28 @@ if __name__ == '__main__':
                 if not os.path.exists(base_dir + '/svm/class'):
                     os.mkdir(base_dir + '/svm/class')
 
-                dump_svmlight_file(fold, label, base_dir + '/svm/class/class_fold_'+ str(f) +'_'+ t +'_all_.svm', query_id=question_id)
+                dump_svmlight_file(fold, label, base_dir + '/svm/class/class_fold_' + str(f) + '_' + t + '_all_.svm',
+                                   query_id=question_id)
 
-                #fold.to_csv(base_dir + '/svm/class/class_fold_'+ str(f) +'_'+ t +'_all_.svm')
+                # fold.to_csv(base_dir + '/svm/class/class_fold_'+ str(f) +'_'+ t +'_all_.svm')
+
+
+def load_base(base_name):
+    base_path = 'data/questionExtraction/' + base_name + "/svm/class/"
+    files = list(filter(lambda x: str.endswith(x,"test_all_.svm"), os.listdir(base_path)))
+
+    folds = load_svmlight_files([ base_path + s for s in files])
+    data = []
+
+    for f in range(0, folds.__len__(),2):
+        a = pd.DataFrame(folds[f].toarray())
+        a['target'] = folds[f+1]
+        data.append(a)
+
+    return pd.concat(data).reset_index()
+
+if __name__ == '__main__':
+    base = load_base("cook")
 
 
 
