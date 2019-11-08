@@ -52,22 +52,26 @@ def best_view_to_class():
                 dump_svmlight_file(fold, label, base_dir + '/svm/class/class_fold_' + str(f) + '_' + t + '_all_.svm',
                                    query_id=question_id)
 
-                # fold.to_csv(base_dir + '/svm/class/class_fold_'+ str(f) +'_'+ t +'_all_.svm')
-
+#
+#  Read the base given by base_name (i.e read all class_fold_*_test_all_.svm files), and return it as a
+#  dataframe
+#
 
 def load_base(base_name):
     base_path = 'data/questionExtraction/' + base_name + "/svm/class/"
     files = list(filter(lambda x: str.endswith(x,"test_all_.svm"), os.listdir(base_path)))
 
-    folds = load_svmlight_files([ base_path + s for s in files])
+    folds = load_svmlight_files([ base_path + s for s in files], query_id = True)
     data = []
 
-    for f in range(0, folds.__len__(),2):
+    for f in range(0, folds.__len__(),3):
         a = pd.DataFrame(folds[f].toarray())
         a['target'] = folds[f+1]
+        a['query_id'] = folds[f+2]
         data.append(a)
 
-    return pd.concat(data).reset_index()
+    data = pd.concat(data).reset_index();
+    return data.drop(columns = ['index'])
 
 if __name__ == '__main__':
     base = load_base("cook")
