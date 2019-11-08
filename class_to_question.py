@@ -73,9 +73,29 @@ def load_base(base_name):
     data = pd.concat(data).reset_index();
     return data.drop(columns = ['index'])
 
-if __name__ == '__main__':
-    base = load_base("cook")
+def load_folds(base_name):
+    base_path = 'data/questionExtraction/' + base_name + "/svm/class/"
+    folds = []
 
+    for f in range(0, 5):
+        files = [base_path + '/class_fold_' + str(f) + '_train_all_.svm']
+        files.append(base_path + '/class_fold_' + str(f) + '_test_all_.svm')
+
+        matrix_folds = load_svmlight_files(files)
+
+        a = pd.DataFrame(matrix_folds[0].toarray())
+        a['target'] = matrix_folds[1]
+        folds.append(a)
+
+        a = pd.DataFrame(matrix_folds[0].toarray())
+        a['target'] = matrix_folds[1]
+        folds.append(a)
+
+    return folds
+
+if __name__ == '__main__':
+    #base = load_base("cook")
+    folds = load_folds("cook")
 
 
 
