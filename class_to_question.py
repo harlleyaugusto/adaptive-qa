@@ -8,6 +8,7 @@ import os
 from sklearn.datasets import dump_svmlight_file
 from sklearn.datasets import load_svmlight_files
 from scipy.sparse import csr_matrix
+import matplotlib.pyplot as plt
 
 def best_view_to_class():
     # For each base(cook, stack, english)
@@ -73,11 +74,11 @@ def load_base(base_name):
     data = pd.concat(data).reset_index();
     return data.drop(columns = ['index'])
 
-def load_folds(base_name):
+def load_folds(base_name, fold_num = None):
     base_path = 'data/questionExtraction/' + base_name + "/svm/class/"
     folds = []
 
-    for f in range(0, 5):
+    for f in (range(0,5) if fold_num is None or fold_num.__len__() == 0 else fold_num):
         files = [base_path + '/class_fold_' + str(f) + '_train_all_.svm']
         files.append(base_path + '/class_fold_' + str(f) + '_test_all_.svm')
 
@@ -87,15 +88,29 @@ def load_folds(base_name):
         a['target'] = matrix_folds[1]
         folds.append(a)
 
-        a = pd.DataFrame(matrix_folds[0].toarray())
-        a['target'] = matrix_folds[1]
+        a = pd.DataFrame(matrix_folds[2].toarray())
+        a['target'] = matrix_folds[3]
         folds.append(a)
 
     return folds
 
 if __name__ == '__main__':
-    #base = load_base("cook")
-    folds = load_folds("cook")
+    base = load_base("cook")
+    base['target'].value_counts().sort_index().plot(kind='bar')
+    plt.title("cook")
+    plt.show()
+
+    base = load_base("english")
+    base['target'].value_counts().sort_index().plot(kind='bar')
+    plt.title("english")
+    plt.show()
+
+    base = load_base("stack")
+    base['target'].value_counts().sort_index().plot(kind='bar')
+    plt.title("Stack")
+    plt.show()
+
+    folds = load_folds("cook", [4])
 
 
 
