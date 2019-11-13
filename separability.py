@@ -20,12 +20,6 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, Gradien
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
-from sklearn.utils import class_weight
-import numpy as np
-
-from imblearn.over_sampling import SMOTE
-from imblearn.over_sampling import RandomOverSampler
-from imblearn.under_sampling import NearMiss
 
 if __name__ == '__main__':
     base = 'cook'
@@ -73,8 +67,6 @@ if __name__ == '__main__':
 
             prob = pd.DataFrame(rf.predict_proba(X_test), columns=[1, 2, 3, 4, 5, 6, 7, 8])
             y_pred = pd.DataFrame(rf.predict(X_test))
-
-            prob.plot.density()
 
             plt.savefig('data/img/' + base +'_'+ type(classifier).__name__+'_density_fold_'+ str(int(f / 2)) + '.pdf')
 

@@ -27,6 +27,14 @@ from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import NearMiss
 
+def embalanced_strategy(strategy):
+    if(strategy == 'SMOTE'):
+        return SMOTE('minority')
+    elif(strategy == 'under'):
+        return RandomOverSampler(random_state=0)
+    elif(strategy == 'over'):
+        return  NearMiss()
+
 if __name__ == '__main__':
     base = 'cook'
     folds = load_folds(base, [0])
@@ -67,31 +75,20 @@ if __name__ == '__main__':
             X_test = folds[f + 1].drop(columns=['target'])
             y_test = list(folds[f + 1]['target'].apply(int).values)
 
-            #imb = SMOTE('minority')
-            #imb = RandomOverSampler(random_state=0)
-            imb = NearMiss()
+            imb = embalanced_strategy('SMOTE')
             X_train, y_train = imb.fit_sample(X_train, y_train)
             X_train = pd.DataFrame(X_train)
             y_train = list(y_train)
 
             rf = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', classifier)])
 
-            #sample_weight = class_weight.compute_sample_weight('balanced', y_train)
-
-            #rf.fit(X_train, y_train, **{'classifier__sample_weight' : sample_weight})
             rf.fit(X_train, y_train)
 
             prob = pd.DataFrame(rf.predict_proba(X_test), columns=[1, 2, 3, 4, 5, 6, 7, 8])
             y_pred = pd.DataFrame(rf.predict(X_test))
-
-            prob.plot.density()
-
-            plt.savefig('data/img/' + base +'_density_fold_'+ str(int(f / 2)) + '.pdf')
 
             print('recall:', recall_score(y_test, y_pred, average='weighted'), 'precision:',
                   precision_score(y_test, y_pred, average='weighted'), ' accuracy:'
                   , accuracy_score(y_test, y_pred))
 
             print(confusion_matrix(y_test, y_pred))
-
-    #prob = pd.concat(prob).reset_index();
