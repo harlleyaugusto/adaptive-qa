@@ -1,4 +1,4 @@
-from class_to_question import load_folds
+from read_folds import load_folds
 import matplotlib.pyplot as plt
 import pandas as pd
 

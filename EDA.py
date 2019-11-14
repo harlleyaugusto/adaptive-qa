@@ -1,4 +1,4 @@
-from class_to_question import load_base
+from read_folds import load_base
 import matplotlib.pyplot as plt
 
 from sklearn.pipeline import Pipeline
@@ -36,9 +36,9 @@ def feature_distribution(base):
 if __name__ == '__main__':
     base = load_base("cook")
     target = base['target']
-    query_id = base['query_id']
+    question_id = base['question_id']
 
-    base = base.drop(columns = ['target', 'query_id'])
+    base = base.drop(columns = ['target', 'question_id'])
 
     numeric_transformer = Pipeline(steps=[('imputer', SimpleImputer(strategy='median')), ('scaler', StandardScaler())])
 
