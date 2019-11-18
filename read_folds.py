@@ -40,7 +40,7 @@ def get_best_view_question():
 
                 label = fold.best_view_result
                 question_id = fold.question_id
-                fold = fold.drop(columns=['question_id', 'best_view_result'])
+                fold = fold.drop(columns=['question_id', 'best_view_result', 'answer_id'])
 
                 if not os.path.exists(base_dir + '/svm/class'):
                     os.mkdir(base_dir + '/svm/class')
@@ -94,6 +94,7 @@ def load_folds(base_name, fold_num = None):
     return folds
 
 if __name__ == '__main__':
+    get_best_view_question()
     base = load_base("cook")
     base['target'].value_counts().sort_index().plot(kind='bar')
     plt.title("cook")
@@ -109,7 +110,7 @@ if __name__ == '__main__':
     plt.title("Stack")
     plt.show()
 
-    get_best_view_question()
+
 
 
 

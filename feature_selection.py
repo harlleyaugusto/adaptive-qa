@@ -21,7 +21,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
+from sklearn.feature_selection import chi2, f_regression
 from sklearn.feature_selection import RFE
 from sklearn.feature_selection import VarianceThreshold
 
@@ -36,7 +36,7 @@ def univariate_selection(folds):
         X_test = folds[f+1].drop(columns = ['target'])
         y_test = list(folds[f+1]['target'].apply(int).values)
 
-        test = SelectKBest(score_func=chi2, k=4)
+        test = SelectKBest(score_func=f_regression, k=40)
         fit = test.fit(X_train, y_train)
 
         # summarize scores
@@ -45,7 +45,8 @@ def univariate_selection(folds):
         features = fit.transform(X_train)
 
         # summarize selected features
-        print(features[0:5, :])
+        #print(features[0:5, :])
+        return fit
 
 def recursive_feature_elimination(folds):
     for f in range(0, folds.__len__(), 2):
@@ -71,10 +72,10 @@ def variance(base):
 
 if __name__ == '__main__':
     base_name = 'cook'
-    folds = load_folds(base_name)
-    base = load_base(base_name)
-    base.drop(columns = ['question_id', 'target'], inplace = True)
+    folds = load_folds(base_name, [0])
+    #base = load_base(base_name)
+    #base.drop(columns = ['question_id', 'target'], inplace = True)
 
-    #univariate_selection(folds)
+    fit = univariate_selection(folds)
     #recursive_feature_elimination(folds)
-    a = variance(base)
+    #a = variance(base)
