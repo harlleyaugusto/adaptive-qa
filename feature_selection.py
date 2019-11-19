@@ -27,8 +27,9 @@ from sklearn.feature_selection import VarianceThreshold
 
 import numpy
 
-def univariate_selection(folds):
+def univariate_selection(folds, k):
     #Negative value error
+    folds_trans = []
     for f in range(0, folds.__len__(), 2):
         X_train = folds[f].drop(columns = ['target'])
         y_train = list(folds[f]['target'].apply(int).values)
@@ -36,17 +37,19 @@ def univariate_selection(folds):
         X_test = folds[f+1].drop(columns = ['target'])
         y_test = list(folds[f+1]['target'].apply(int).values)
 
-        test = SelectKBest(score_func=f_regression, k=40)
+        test = SelectKBest(score_func = f_regression, k = k)
         fit = test.fit(X_train, y_train)
 
-        # summarize scores
-        numpy.set_printoptions(precision=3)
-        print(fit.scores_)
-        features = fit.transform(X_train)
+        X_train = pd.DataFrame(fit.transform(X_train))
+        X_test = pd.DataFrame(fit.transform(X_test))
 
-        # summarize selected features
-        #print(features[0:5, :])
-        return fit
+        X_train['target'] = y_train
+        X_test['target'] = y_test
+
+        folds_trans.append(X_train)
+        folds_trans.append(X_test)
+
+    return folds_trans
 
 def recursive_feature_elimination(folds):
     for f in range(0, folds.__len__(), 2):
