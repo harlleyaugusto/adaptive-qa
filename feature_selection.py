@@ -1,3 +1,6 @@
+from autosklearn.metrics import recall
+
+from pipe_algorithms import pipele_classification
 from read_folds import load_folds, load_base
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -22,7 +25,7 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2, f_regression
-from sklearn.feature_selection import RFE
+from sklearn.feature_selection import RFE, RFECV
 from sklearn.feature_selection import VarianceThreshold
 
 import numpy
@@ -52,21 +55,24 @@ def univariate_selection(folds, k):
     return folds_trans
 
 def recursive_feature_elimination(folds):
-    for f in range(0, folds.__len__(), 2):
-        X_train = folds[f].drop(columns = ['target'])
-        y_train = list(folds[f]['target'].apply(int).values)
 
-        X_test = folds[f+1].drop(columns = ['target'])
-        y_test = list(folds[f+1]['target'].apply(int).values)
+    model = GradientBoostingClassifier()
+    rfecv = RFECV(estimator=model, step=1, cv=5, scoring="precision_weighted")
 
-        model = GradientBoostingClassifier()
-        rfe = RFE(model, 10)
-        fit = rfe.fit(X_train, y_train)
+    # Using just the first folds
 
-        print("============== FOLD: " + str(int(f/2)) + " ===================")
-        print("Num Features: %d" % fit.n_features_)
-        print("Selected Features: %s" % fit.support_)
-        print("Feature Ranking: %s" % fit.ranking_)
+    X_train = folds[0].drop(columns=['target'])
+    y_train = list(folds[0]['target'].apply(int).values)
+
+    rfecv = rfecv.fit(X_train, y_train)
+
+    for f in range(0, folds.__len__(), 1):
+        y = list(folds[f]['target'].apply(int).values)
+        folds[f]=folds[f][folds[f].drop(columns=['target']).columns[rfecv.support_]]
+        folds[f]['target'] = y
+
+    return folds
+
 
 def variance(base):
     sel = VarianceThreshold(threshold=(.8 * (1 - .8)))
@@ -75,10 +81,12 @@ def variance(base):
 
 if __name__ == '__main__':
     base_name = 'cook'
-    folds = load_folds(base_name, [0])
+    folds = load_folds(base_name)
     #base = load_base(base_name)
     #base.drop(columns = ['question_id', 'target'], inplace = True)
 
-    fit = univariate_selection(folds)
-    #recursive_feature_elimination(folds)
+    folds = univariate_selection(folds, 50)
+    #folds = recursive_feature_elimination(folds)
     #a = variance(base)
+
+    pipele_classification(folds)
