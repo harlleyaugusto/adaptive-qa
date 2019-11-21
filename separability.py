@@ -61,7 +61,7 @@ if __name__ == '__main__':
         # AdaBoostClassifier(),
         # RandomForestClassifier(),
         GridSearchCV(GradientBoostingClassifier(), parameters)
-        #GaussianNB()
+        GaussianNB()
     ]
 
     prob = []
