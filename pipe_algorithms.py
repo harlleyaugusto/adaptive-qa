@@ -1,3 +1,6 @@
+from sklearn.model_selection import KFold
+
+from feature_selection import recursive_feature_elimination
 from read_folds import load_folds
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -46,11 +49,10 @@ def pipele_classification(folds):
         GradientBoostingClassifier()
     ]
 
-    # classifiers = [GradientBoostingClassifier(n_estimators=20, learning_rate=learning_rate, max_features=2, max_depth=2, random_state=0) for learning_rate in numpy.arange(0.1, 1, 0.1)]
-
     for classifier in classifiers:
         print("============" + str(classifier) + "==================")
         for f in range(0, folds.__len__(), 2):
+            print(folds[f])
             X_train = folds[f].drop(columns=['target'])
             y_train = list(folds[f]['target'].apply(int).values)
 
@@ -99,5 +101,19 @@ def pipele_classification(folds):
 if __name__ == '__main__':
     base = 'cook'
     folds = load_folds(base)
-    pipele_classification(folds)
+    #pipele_classification(folds)
 
+    #estimators = [('feat_selection', recursive_feature_elimination(folds))]
+
+    #numeric_transformer = Pipeline([
+    #    ('feat_selection', recursive_feature_elimination(folds)),
+    #    ('classf', pipele_classification(folds))])
+    #pipe = Pipeline(estimators)
+
+    kf = KFold(n_splits=5)
+    kf.split(folds[0])
+
+    for train, test in kf.split(folds[0]):
+        print("Train: %s \nTest:%s" % (train, test))
+        print("Train: %s "% train.__len__())
+        print("Test: %s " % test.__len__())

@@ -1,6 +1,5 @@
 from autosklearn.metrics import recall
 
-from pipe_algorithms import pipele_classification
 from read_folds import load_folds, load_base
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -61,8 +60,8 @@ def recursive_feature_elimination(folds):
 
     # Using just the first folds
 
-    X_train = folds[0].drop(columns=['target'])
-    y_train = list(folds[0]['target'].apply(int).values)
+    X_train = folds[0].drop(columns=['target']).head(10)
+    y_train = list(folds[0]['target'].head(10).apply(int).values)
 
     rfecv = rfecv.fit(X_train, y_train)
 
@@ -89,4 +88,4 @@ if __name__ == '__main__':
     #folds = recursive_feature_elimination(folds)
     #a = variance(base)
 
-    pipele_classification(folds)
+    #pipele_classification(folds)

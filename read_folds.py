@@ -93,7 +93,32 @@ def load_folds(base_name, fold_num = None):
 
     return folds
 
+def load_folds_test(base_name, fold_num = None):
+    base_path = 'data/questionExtraction/' + base_name + "/svm/class/"
+    folds = []
+
+    for f in (range(0,5) if fold_num is None or fold_num.__len__() == 0 else fold_num):
+        files = [base_path + '/class_fold_' + str(f) + '_train_all_.svm']
+        files.append(base_path + '/class_fold_' + str(f) + '_test_all_.svm')
+
+        matrix_folds = load_svmlight_files(files)
+
+        # Get train and target
+        a = pd.DataFrame(matrix_folds[0].toarray())
+        a['target'] = matrix_folds[1]
+        folds.append(a)
+
+        # Get test and target
+        a = pd.DataFrame(matrix_folds[2].toarray())
+        a['target'] = matrix_folds[3]
+        folds.append(a)
+
+    return folds
+
 if __name__ == '__main__':
+    folds = load_folds('cook')
+
+    '''
     get_best_view_question()
     base = load_base("cook")
     base['target'].value_counts().sort_index().plot(kind='bar')
@@ -110,7 +135,7 @@ if __name__ == '__main__':
     plt.title("Stack")
     plt.show()
 
-
+    '''
 
 
 

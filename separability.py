@@ -28,6 +28,7 @@ if __name__ == '__main__':
     base = 'cook'
     folds = load_folds(base)
 
+
     numeric_transformer = Pipeline(steps=[('imputer', SimpleImputer(strategy='median')), ('scaler', StandardScaler())])
 
     categorical_transformer = Pipeline(steps=[('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
@@ -60,8 +61,9 @@ if __name__ == '__main__':
         # RandomForestClassifier(),
         # AdaBoostClassifier(),
         # RandomForestClassifier(),
-        GridSearchCV(GradientBoostingClassifier(), parameters)
-        GaussianNB()
+        #GridSearchCV(GradientBoostingClassifier(), parameters)
+        GradientBoostingClassifier()
+        #GaussianNB()
     ]
 
     prob = []
