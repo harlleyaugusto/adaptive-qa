@@ -71,7 +71,7 @@ def load_base(base_name):
     data = pd.concat(data).reset_index();
     return data.drop(columns = ['index'])
 
-def load_folds(base_name, fold_num = None):
+def load_folds_old(base_name, fold_num = None):
     base_path = 'data/questionExtraction/' + base_name + "/svm/class/"
     folds = []
 
@@ -93,7 +93,7 @@ def load_folds(base_name, fold_num = None):
 
     return folds
 
-def load_folds_test(base_name, fold_num = None):
+def load_folds(base_name, fold_num = None):
     base_path = 'data/questionExtraction/' + base_name + "/svm/class/"
     folds = []
 
@@ -101,16 +101,24 @@ def load_folds_test(base_name, fold_num = None):
         files = [base_path + '/class_fold_' + str(f) + '_train_all_.svm']
         files.append(base_path + '/class_fold_' + str(f) + '_test_all_.svm')
 
-        matrix_folds = load_svmlight_files(files)
+        matrix_folds = load_svmlight_files(files, query_id= True)
 
         # Get train and target
         a = pd.DataFrame(matrix_folds[0].toarray())
         a['target'] = matrix_folds[1]
+        a['id_query'] = matrix_folds[2]
+        a = a.reset_index()
+        a = a.set_index('id_query')
+        a = a.drop(columns=['index'])
         folds.append(a)
 
         # Get test and target
-        a = pd.DataFrame(matrix_folds[2].toarray())
-        a['target'] = matrix_folds[3]
+        a = pd.DataFrame(matrix_folds[3].toarray())
+        a['target'] = matrix_folds[4]
+        a['id_query'] = matrix_folds[5]
+        a = a.reset_index()
+        a = a.set_index('id_query')
+        a = a.drop(columns=['index'])
         folds.append(a)
 
     return folds

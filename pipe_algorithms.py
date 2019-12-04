@@ -1,9 +1,12 @@
-from sklearn.model_selection import KFold
+from sklearn import svm
+from sklearn.model_selection import KFold, cross_validate, cross_val_score, cross_val_predict
 
+from Dataset import Dataset
 from feature_selection import recursive_feature_elimination
 from read_folds import load_folds
 import matplotlib.pyplot as plt
 import pandas as pd
+from imbalanced import embalanced_strategy
 
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
@@ -24,7 +27,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 import numpy
 
-def pipele_classification(folds):
+def pipeline_classification(folds):
     numeric_transformer = Pipeline(steps=[('imputer', SimpleImputer(strategy='median')), ('scaler', StandardScaler())])
 
     categorical_transformer = Pipeline(steps=[('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
@@ -39,20 +42,20 @@ def pipele_classification(folds):
                                                    ('cat', categorical_transformer, categorical_features)])
 
     classifiers = [
-        # KNeighborsClassifier(3),
-        # SVC(kernel="rbf", C=0.025, probability=True),
+        KNeighborsClassifier(3),
+        #svm.SVC(kernel="linear", C=1, probability=True),
         # NuSVC(probability=True),
         # DecisionTreeClassifier(),
         # RandomForestClassifier(),
         # AdaBoostClassifier(),
         # RandomForestClassifier(),
-        GradientBoostingClassifier()
+        #GradientBoostingClassifier()
     ]
 
     for classifier in classifiers:
         print("============" + str(classifier) + "==================")
         for f in range(0, folds.__len__(), 2):
-            print(folds[f])
+            #print(folds[f])
             X_train = folds[f].drop(columns=['target'])
             y_train = list(folds[f]['target'].apply(int).values)
 
@@ -62,9 +65,10 @@ def pipele_classification(folds):
             rf = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', classifier)])
 
             rf.fit(X_train, y_train)
+
             y_pred = rf.predict(X_test)
 
-            print('recall:', recall_score(y_test, y_pred, average='weighted'), 'precision:',
+            print('Test: recall:', recall_score(y_test, y_pred, average='weighted'), 'precision:',
                   precision_score(y_test, y_pred, average='weighted'), ' accuracy:'
                   , accuracy_score(y_test, y_pred))
 
@@ -98,10 +102,49 @@ def pipele_classification(folds):
 
             # plt.savefig('data/img/' + base + '_pred_fold_' + str(f / 2) + '.pdf')
 
+
+def pipeline_classification_new(base):
+    numeric_transformer = Pipeline(steps=[('imputer', SimpleImputer(strategy='median')), ('scaler', StandardScaler())])
+
+    categorical_transformer = Pipeline(steps=[('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+                                              ('onehot', OneHotEncoder(handle_unknown='ignore'))])
+
+    # TODO: categorical and numerical issue must to be solved!
+
+    numeric_features = base.features.select_dtypes(include=['int64', 'float64']).columns
+    categorical_features = base.features.select_dtypes(include=['object']).columns
+
+    preprocessor = ColumnTransformer(transformers=[('num', numeric_transformer, numeric_features),
+                                                   ('cat', categorical_transformer, categorical_features)])
+
+    classifiers = [
+        KNeighborsClassifier(3),
+        #svm.SVC(kernel="linear", C=1, probability=True),
+        # NuSVC(probability=True),
+        # DecisionTreeClassifier(),
+        # RandomForestClassifier(),
+        # AdaBoostClassifier(),
+        # RandomForestClassifier(),
+        #GradientBoostingClassifier()
+    ]
+    for classifier in classifiers:
+        rf = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', classifier)])
+        scores  = cross_validate(rf, base.features, base.target['target'], cv = base.cv, verbose=100)
+
+
 if __name__ == '__main__':
-    base = 'cook'
-    folds = load_folds(base)
-    #pipele_classification(folds)
+    base_name = 'cook'
+
+    #base = Dataset(base_name)
+    #pipeline_classification_new(base)
+
+    folds = load_folds(base_name)
+    pipeline_classification(folds)
+
+    #clf = svm.SVC(kernel='linear', C=1, random_state=0)
+
+
+    #scores = cross_val_predict(clf, base.features, base.target['target'],  cv=kfold, verbose=10)
 
     #estimators = [('feat_selection', recursive_feature_elimination(folds))]
 
@@ -110,6 +153,7 @@ if __name__ == '__main__':
     #    ('classf', pipele_classification(folds))])
     #pipe = Pipeline(estimators)
 
+'''
     kf = KFold(n_splits=5)
     kf.split(folds[0])
 
@@ -117,3 +161,5 @@ if __name__ == '__main__':
         print("Train: %s \nTest:%s" % (train, test))
         print("Train: %s "% train.__len__())
         print("Test: %s " % test.__len__())
+        
+'''

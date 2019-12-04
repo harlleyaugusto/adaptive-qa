@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from feature_selection import univariate_selection
-from pipe_algorithms import pipele_classification
+from pipe_algorithms import pipeline_classification
 from read_folds import load_folds, load_base
 
 from sklearn.feature_selection import SelectKBest
@@ -65,7 +65,7 @@ if __name__ == '__main__':
    # plt.show()
 
     #swarm(base)
-    #corrAll(base)
+    corrAll(base)
 
 
     # drop based on the correlation table
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     folds_trans = univariate_selection(folds, k=5)
 
-    pipele_classification(folds_trans)
+    pipeline_classification(folds_trans)
 
 
 

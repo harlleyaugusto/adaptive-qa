@@ -30,14 +30,14 @@ from imblearn.under_sampling import NearMiss
 def embalanced_strategy(strategy):
     if(strategy == 'SMOTE'):
         return SMOTE('minority')
-    elif(strategy == 'under'):
-        return RandomOverSampler(random_state=0)
     elif(strategy == 'over'):
+        return RandomOverSampler(random_state=0)
+    elif(strategy == 'under'):
         return  NearMiss()
 
 if __name__ == '__main__':
     base = 'cook'
-    folds = load_folds(base, [0])
+    folds = load_folds(base)
 
     numeric_transformer = Pipeline(steps=[('imputer', SimpleImputer(strategy='median')), ('scaler', StandardScaler())])
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
             X_test = folds[f + 1].drop(columns=['target'])
             y_test = list(folds[f + 1]['target'].apply(int).values)
 
-            imb = embalanced_strategy('SMOTE')
+            imb = embalanced_strategy('over')
             X_train, y_train = imb.fit_sample(X_train, y_train)
             X_train = pd.DataFrame(X_train)
             y_train = list(y_train)
@@ -92,3 +92,33 @@ if __name__ == '__main__':
                   , accuracy_score(y_test, y_pred))
 
             print(confusion_matrix(y_test, y_pred))
+
+            # print(confusion_matrix(y_test, y_pred))
+
+            fig = plt.figure()
+            fig.subplots_adjust(hspace=0.4, wspace=0.7)
+
+            y_train = pd.DataFrame(y_train)
+            ax = fig.add_subplot(1, 3, 1)
+            ax.set_title('Distributin train - fold ' + str(f / 2), fontsize = 6)
+            ax.tick_params(labelsize=5)
+            ax.bar(y_train[0].value_counts().sort_index().index, y_train[0].value_counts().sort_index().values,
+                tick_label=y_train[0].value_counts().sort_index().index)
+
+            y_test = pd.DataFrame(y_test)
+
+            ax = fig.add_subplot(1, 3, 2)
+            ax.set_title('Distributin test - fold ' + str(f/2), fontsize = 6)
+            ax.tick_params(labelsize=5)
+            ax.bar(y_test[0].value_counts().sort_index().index,y_test[0].value_counts().sort_index().values,
+                 tick_label=y_test[0].value_counts().sort_index().index)
+
+            y_pred = pd.DataFrame(y_pred)
+
+            ax = fig.add_subplot(1, 3, 3)
+            ax.set_title('Distributin pred - fold ' + str(f / 2), fontsize = 6)
+            ax.tick_params(labelsize=5)
+            ax.bar(y_pred[0].value_counts().sort_index().index, y_pred[0].value_counts().sort_index().values,
+                  tick_label=y_pred[0].value_counts().sort_index().index)
+
+            plt.savefig('data/img/' + base + '_pred_fold_' + str(f / 2) + '.pdf')

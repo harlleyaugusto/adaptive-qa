@@ -75,6 +75,8 @@ def recursive_feature_elimination(folds):
 
 def variance(base):
     sel = VarianceThreshold(threshold=(.8 * (1 - .8)))
+
+
     a = pd.DataFrame(sel.fit_transform(base))
     return a
 
@@ -84,8 +86,10 @@ if __name__ == '__main__':
     #base = load_base(base_name)
     #base.drop(columns = ['question_id', 'target'], inplace = True)
 
-    folds = univariate_selection(folds, 50)
+    #folds = univariate_selection(folds, 50)
+    folds = variance(folds)
     #folds = recursive_feature_elimination(folds)
     #a = variance(base)
 
     #pipele_classification(folds)
+
