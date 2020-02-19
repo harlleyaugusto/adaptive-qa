@@ -1,0 +1,25 @@
+
+create database stack;
+quit
+mysql -u root -p12345 stack <  PostsSampleStack.sql
+mysql -u root -p12345 stack
+RENAME TABLE PostsSample TO Posts;
+quit
+
+create database cook;
+quit
+mysql -u root -p12345 cook < scheme.sql
+mysql -u root -p12345 cook;
+LOAD DATA LOCAL INFILE '/home/harlley/Projects/rm-project/data/dump/COOK_1_50000.csv' INTO TABLE Posts FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (Id,PostTypeId,AcceptedAnswerId,ParentId,CreationDate,Score,ViewCount,Body,OwnerUserId,LastEditorUserId,LastEditDate,LastActivityDate,Title,Tags,AnswerCount,CommentCount,FavoriteCount,ClosedDate,CommunityOwnedDate);
+
+
+create database english;
+quit
+mysql -u root -p12345 english < scheme.sql
+mysql -u root -p12345 english;
+
+LOAD DATA LOCAL INFILE '/home/harlley/Projects/rm-project/data/dump/ENGLISH_1_50000.csv' INTO TABLE Posts FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (Id,PostTypeId,AcceptedAnswerId,ParentId,CreationDate,Score,ViewCount,Body,OwnerUserId,LastEditorUserId,LastEditDate,LastActivityDate,Title,Tags,AnswerCount,CommentCount,FavoriteCount,ClosedDate,CommunityOwnedDate);
+
+LOAD DATA LOCAL INFILE '/home/harlley/Projects/rm-project/data/dump/ENGLISH_50001_100000.csv' INTO TABLE Posts FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (Id,PostTypeId,AcceptedAnswerId,ParentId,CreationDate,Score,ViewCount,Body,OwnerUserId,LastEditorUserId,LastEditDate,LastActivityDate,Title,Tags,AnswerCount,CommentCount,FavoriteCount,ClosedDate,CommunityOwnedDate);
+
+
