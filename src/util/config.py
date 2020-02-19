@@ -1,10 +1,9 @@
-
 import configparser
 
 class Config:
     def __init__(self):
         self.config = configparser.ConfigParser()
-        self.config.read('../../config.ini')
+        self.config.read('config.ini')
 
         self.raw_data = self.config.get('FILES', 'raw_data')
         self.processed_data = self.config.get('FILES', 'processed_data')
@@ -18,3 +17,6 @@ class Config:
 
         self.report = self.config.get('REPORT', 'report')
         self.img_report = self.config.get('REPORT', 'img_report')
+
+if __name__ == '__main__':
+    c = Config()
