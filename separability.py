@@ -93,4 +93,4 @@ if __name__ == '__main__':
                   precision_score(y_test, y_pred, average='weighted'), ' accuracy:'
                   , accuracy_score(y_test, y_pred))
 
-            print(confusion_matrix(y_test, y_pred))
+            print(confusion_matrix(y_test, y_pred))#

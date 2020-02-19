@@ -1,3 +1,0 @@
-mysql
-scikit-learn
-pandas

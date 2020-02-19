@@ -1,29 +1,31 @@
 import pandas as pd
-import os
 
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline
-from sklearn import svm
 from sklearn.compose import ColumnTransformer
-from sklearn.datasets import dump_svmlight_file
 from sklearn.datasets import load_svmlight_files
-import matplotlib.pyplot as plt
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import cross_validate
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from read_folds import load_folds
 
 class Dataset:
     path = 'data/questionExtraction/'
 
     def __init__(self, name):
         self.base_name = name
+
+        # *all* folds (train and test) into features
         self.features = []
+
+        # *all* targets (train and test) into target
         self.target = []
         #self.folds = []
+
+        # cv stores the index of each fold (train and test)
         self.cv = []
+
         self.load_base()
 
 
@@ -38,7 +40,7 @@ class Dataset:
             files.append(base_path + '/class_fold_' + str(f) + '_test_all_.svm')
             matrix_folds = load_svmlight_files(files, query_id=True)
 
-            # Get train and target
+            # Get train and target for fold f
             a = pd.DataFrame(matrix_folds[0].toarray())
             a['target'] = matrix_folds[1]
             a['id_query'] = matrix_folds[2]
@@ -48,13 +50,14 @@ class Dataset:
 
             #base.features.index.get_indexer_for(base.features.loc[base.cv[0][0], :].index)
 
-            # Get test and target
+            # Get test and target for fold f
             b = pd.DataFrame(matrix_folds[3].toarray())
             b['target'] = matrix_folds[4]
             b['id_query'] = matrix_folds[5]
             b = b.reset_index()
             b = b.set_index('id_query')
             b = b.drop(columns=['index'])
+
             if f == 0:
                 self.features = pd.concat([a, b])
                 self.target = self.features[['target']]
@@ -66,12 +69,12 @@ class Dataset:
 
         self.cv = (list(zip(train_indices, test_indices)))
 
+    # get each folds separately
     def getFolds(self):
         folds = []
         for f in range(0, self.cv.__len__()):
             for tt in range(0, 2):
-                folds.append(self.features.iloc[base.cv[f][tt]].join(self.target, how = 'inner'))
-
+                folds.append(self.features.iloc[self.cv[f][tt]].join(self.target, how = 'inner'))
         return folds
 
 if __name__ == '__main__':

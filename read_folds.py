@@ -124,7 +124,8 @@ def load_folds(base_name, fold_num = None):
     return folds
 
 if __name__ == '__main__':
-    folds = load_folds('cook')
+   #folds = load_folds('cook')
+    get_best_view_question()
 
     '''
     get_best_view_question()
